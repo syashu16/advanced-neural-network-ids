@@ -88,14 +88,14 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-# Load advanced models and metadata
+# Load advanced models and hybrid system
 @st.cache_resource
 def load_advanced_models():
     """Load the advanced models, scaler, and metadata"""
     try:
         # Check for advanced models directory
         if not os.path.exists('models_advanced'):
-            return None, None, None, None, None, None
+            return None, None, None, None, None, None, None
         
         # Load metadata
         with open('models_advanced/model_metadata.json', 'r') as f:
@@ -105,6 +105,26 @@ def load_advanced_models():
         scaler = joblib.load('models_advanced/scaler_advanced.pkl')
         label_encoders = joblib.load('models_advanced/label_encoders.pkl')
         feature_cols = joblib.load('models_advanced/feature_columns.pkl')
+        
+        # Try to load hybrid system
+        hybrid_system = None
+        try:
+            from hybrid_autoencoder_lstm import HybridAutoEncoderLSTM
+            hybrid_system = HybridAutoEncoderLSTM()
+            if hybrid_system.load_hybrid_system():
+                metadata['hybrid_available'] = True
+                metadata['hybrid_components'] = {
+                    'autoencoder': hybrid_system.autoencoder is not None and hybrid_system.autoencoder.is_trained,
+                    'lstm': hybrid_system.lstm_analyzer is not None and hybrid_system.lstm_analyzer.is_trained,
+                    'fusion_engine': hybrid_system.fusion_engine is not None
+                }
+            else:
+                hybrid_system = None
+                metadata['hybrid_available'] = False
+        except Exception as e:
+            hybrid_system = None
+            metadata['hybrid_available'] = False
+            print(f"Hybrid system not available: {str(e)}")
         
         # Load models based on best performer
         if metadata['best_model'] == 'Ensemble':
@@ -120,18 +140,18 @@ def load_advanced_models():
             if os.path.exists('models_advanced/advanced_nn_model.keras'):
                 advanced_model = tf.keras.models.load_model('models_advanced/advanced_nn_model.keras')
             
-            return ensemble_models, advanced_model, scaler, label_encoders, feature_cols, metadata
+            return ensemble_models, advanced_model, scaler, label_encoders, feature_cols, metadata, hybrid_system
         else:
             # Load advanced neural network
             advanced_model = tf.keras.models.load_model('models_advanced/advanced_nn_model.keras')
-            return None, advanced_model, scaler, label_encoders, feature_cols, metadata
+            return None, advanced_model, scaler, label_encoders, feature_cols, metadata, hybrid_system
     
     except Exception as e:
         st.error(f"Error loading advanced models: {str(e)}")
-        return None, None, None, None, None, None
+        return None, None, None, None, None, None, None
 
 # Load models
-ensemble_models, advanced_model, scaler, label_encoders, feature_cols, metadata = load_advanced_models()
+ensemble_models, advanced_model, scaler, label_encoders, feature_cols, metadata, hybrid_system = load_advanced_models()
 
 if metadata is None:
     st.error("🚨 **Advanced model files not found!** Please run the advanced training notebook first.")
@@ -226,8 +246,9 @@ def make_advanced_prediction(input_data):
     try:
         input_scaled = preprocess_input(input_data)
         if input_scaled is None:
-            return None, None, None
+            return None, None, None, None
         
+        # Standard prediction using existing ensemble
         if metadata['best_model'] == 'Ensemble' and ensemble_models:
             # Ensemble prediction
             predictions = []
@@ -249,13 +270,36 @@ def make_advanced_prediction(input_data):
             all_probs = prediction[0]
         
         else:
-            return None, None, None
+            return None, None, None, None
         
-        return pred_class, confidence, all_probs
+        # Hybrid prediction if available
+        hybrid_result = None
+        if hybrid_system is not None and hybrid_system.fusion_engine is not None:
+            try:
+                hybrid_result = hybrid_system.predict_single(input_scaled)
+                # Use hybrid result if it has higher confidence or detects anomaly
+                if (hybrid_result.final_confidence > confidence + 0.1 or 
+                    hybrid_result.is_anomaly or 
+                    hybrid_result.final_prediction != pred_class):
+                    pred_class = hybrid_result.final_prediction
+                    confidence = hybrid_result.final_confidence
+                    # Update probabilities to match hybrid prediction
+                    all_probs = np.zeros_like(all_probs)
+                    all_probs[pred_class] = confidence
+                    # Distribute remaining probability
+                    remaining_prob = 1.0 - confidence
+                    for i in range(len(all_probs)):
+                        if i != pred_class:
+                            all_probs[i] = remaining_prob / (len(all_probs) - 1)
+            except Exception as e:
+                print(f"Hybrid prediction failed: {str(e)}")
+                hybrid_result = None
+        
+        return pred_class, confidence, all_probs, hybrid_result
     
     except Exception as e:
         st.error(f"Prediction error: {str(e)}")
-        return None, None, None
+        return None, None, None, None
 
 # Sidebar
 st.sidebar.title("🔧 Advanced Model Interface")
@@ -263,13 +307,36 @@ st.sidebar.markdown(f"**Model Type:** {metadata['best_model']}")
 st.sidebar.markdown(f"**Accuracy:** {metadata['best_accuracy']*100:.2f}%")
 st.sidebar.markdown(f"**Training Date:** {metadata['training_date']}")
 
+# Hybrid system status
+if metadata.get('hybrid_available', False):
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🚀 Hybrid System Status")
+    hybrid_components = metadata.get('hybrid_components', {})
+    
+    # Show component status with icons
+    autoencoder_icon = "✅" if hybrid_components.get('autoencoder', False) else "❌"
+    lstm_icon = "✅" if hybrid_components.get('lstm', False) else "❌"
+    fusion_icon = "✅" if hybrid_components.get('fusion_engine', False) else "❌"
+    
+    st.sidebar.markdown(f"**{autoencoder_icon} Autoencoder:** {'Active' if hybrid_components.get('autoencoder', False) else 'Inactive'}")
+    st.sidebar.markdown(f"**{lstm_icon} LSTM:** {'Active' if hybrid_components.get('lstm', False) else 'Inactive'}")
+    st.sidebar.markdown(f"**{fusion_icon} Fusion Engine:** {'Active' if hybrid_components.get('fusion_engine', False) else 'Inactive'}")
+    
+    if all(hybrid_components.values()):
+        st.sidebar.success("🎯 Full Hybrid System Online!")
+    else:
+        st.sidebar.warning("⚠️ Partial Hybrid System")
+else:
+    st.sidebar.markdown("---")
+    st.sidebar.info("💡 Hybrid system not available")
+
 input_method = st.sidebar.selectbox(
     "Choose input method:",
     ["Manual Input", "Predefined Scenarios", "Advanced Testing"]
 )
 
 # Main interface tabs
-tab1, tab2, tab3, tab4, tab5 = st.tabs(["🎯 Prediction", "📊 Model Analytics", "🚨 Security Alerts", "🧠 Model Details", "📚 Documentation"])
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🎯 Prediction", "📊 Model Analytics", "🚨 Security Alerts", "🧠 Model Details", "🚀 Hybrid System", "📚 Documentation"])
 
 with tab1:
     if input_method == "Manual Input":
@@ -322,7 +389,7 @@ with tab1:
         
         if st.button("🚀 Analyze with Advanced AI", type="primary", use_container_width=True):
             with st.spinner("🧠 Running advanced neural network analysis..."):
-                pred_class, confidence, all_probs = make_advanced_prediction(manual_features)
+                pred_class, confidence, all_probs, hybrid_result = make_advanced_prediction(manual_features)
                 
                 if pred_class is not None:
                     st.balloons()  # Celebration for successful prediction
@@ -330,6 +397,7 @@ with tab1:
                     col1, col2 = st.columns([1, 1])
                     
                     with col1:
+                        # Show prediction result
                         if pred_class == 0:
                             st.markdown(f'''
                             <div class="prediction-normal">
@@ -346,6 +414,26 @@ with tab1:
                                 🛡️ SECURITY ALERT!
                             </div>
                             ''', unsafe_allow_html=True)
+                        
+                        # Show hybrid system analysis if available
+                        if hybrid_result is not None:
+                            st.markdown("---")
+                            st.markdown("### 🔬 Hybrid Analysis")
+                            
+                            # Anomaly detection results
+                            if hybrid_result.is_anomaly:
+                                st.warning(f"🚨 Anomaly Detected! Score: {hybrid_result.anomaly_score:.4f}")
+                            else:
+                                st.success(f"✅ Normal Pattern. Score: {hybrid_result.anomaly_score:.4f}")
+                            
+                            # Decision reasoning
+                            if hybrid_result.decision_reasoning:
+                                st.info(f"🧠 Decision Logic: {hybrid_result.decision_reasoning}")
+                            
+                            # Temporal analysis if available
+                            if hybrid_result.temporal_prediction is not None:
+                                st.write(f"⏱️ Temporal Analysis: {class_names[hybrid_result.temporal_prediction]} "
+                                       f"(confidence: {hybrid_result.temporal_confidence:.1%})")
                     
                     with col2:
                         # Enhanced probability visualization
@@ -782,6 +870,149 @@ with tab5:
         - Robust to input variations
         - Comprehensive logging and monitoring
         """)
+
+with tab6:
+    st.subheader("🚀 Hybrid Neural Network System")
+    
+    if hybrid_system is not None and hybrid_system.fusion_engine is not None:
+        # System overview
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric(
+                label="🔬 Autoencoder Status",
+                value="Active" if (hybrid_system.autoencoder and hybrid_system.autoencoder.is_trained) else "Inactive",
+                delta="Anomaly Detection"
+            )
+        
+        with col2:
+            st.metric(
+                label="⏱️ LSTM Status", 
+                value="Active" if (hybrid_system.lstm_analyzer and hybrid_system.lstm_analyzer.is_trained) else "Inactive",
+                delta="Temporal Analysis"
+            )
+        
+        with col3:
+            st.metric(
+                label="🧠 Fusion Engine",
+                value="Online",
+                delta="Intelligent Decision Making"
+            )
+        
+        # System architecture
+        st.markdown("### 🏗️ Hybrid Architecture")
+        
+        architecture_col1, architecture_col2 = st.columns(2)
+        
+        with architecture_col1:
+            st.markdown("""
+            **🔬 Autoencoder Component**
+            - **Purpose**: Novel attack detection through anomaly scoring
+            - **Architecture**: 41 → 32 → 16 → 8 → 16 → 32 → 41
+            - **Training**: Unsupervised on normal traffic only
+            - **Output**: Reconstruction error (anomaly score)
+            
+            **⏱️ LSTM Component** 
+            - **Purpose**: Temporal pattern recognition
+            - **Architecture**: LSTM(64) → LSTM(32) → Attention → Dense
+            - **Input**: Sequences of 15 consecutive flows
+            - **Output**: Attack classification with temporal context
+            """)
+        
+        with architecture_col2:
+            st.markdown("""
+            **🧠 Fusion Engine**
+            - **Ensemble Weight**: 60% (proven 99.09% accuracy)
+            - **Anomaly Weight**: 25% (novel attack detection)
+            - **Temporal Weight**: 15% (sequence patterns)
+            
+            **🎯 Decision Logic**
+            1. High confidence ensemble → Direct decision
+            2. Anomaly detected + normal prediction → Override with attack
+            3. Temporal inconsistency → Weighted fusion
+            4. Standard cases → Ensemble with anomaly adjustment
+            """)
+        
+        # Performance metrics if available
+        if hasattr(hybrid_system, 'fusion_engine') and hybrid_system.fusion_engine:
+            st.markdown("### 📊 System Performance")
+            
+            try:
+                decision_stats = hybrid_system.fusion_engine.get_decision_statistics()
+                
+                if decision_stats:
+                    perf_col1, perf_col2, perf_col3, perf_col4 = st.columns(4)
+                    
+                    total_decisions = sum([stats['count'] for stats in decision_stats.values() if isinstance(stats, dict)])
+                    
+                    with perf_col1:
+                        ensemble_decisions = decision_stats.get('ensemble_decisions', {}).get('count', 0)
+                        st.metric("🎭 Ensemble Decisions", ensemble_decisions)
+                    
+                    with perf_col2:
+                        anomaly_overrides = decision_stats.get('anomaly_overrides', {}).get('count', 0) 
+                        st.metric("🚨 Anomaly Overrides", anomaly_overrides)
+                    
+                    with perf_col3:
+                        temporal_influences = decision_stats.get('temporal_influences', {}).get('count', 0)
+                        st.metric("⏱️ Temporal Influences", temporal_influences)
+                    
+                    with perf_col4:
+                        fusion_decisions = decision_stats.get('fusion_decisions', {}).get('count', 0)
+                        st.metric("🧠 Fusion Decisions", fusion_decisions)
+                
+            except Exception as e:
+                st.info("Performance metrics will be available after processing some predictions.")
+        
+        # Model details
+        st.markdown("### 🔧 Technical Specifications")
+        
+        if hybrid_system.autoencoder and hybrid_system.autoencoder.threshold:
+            st.write(f"**Anomaly Threshold**: {hybrid_system.autoencoder.threshold:.6f}")
+        
+        if hybrid_system.lstm_analyzer:
+            st.write(f"**Sequence Length**: {hybrid_system.lstm_analyzer.sequence_length} flows")
+            st.write(f"**LSTM Input Dimension**: {hybrid_system.lstm_analyzer.input_dim} features")
+        
+        fusion_weights = hybrid_system.fusion_engine.fusion_weights
+        st.write("**Fusion Weights**:")
+        for component, weight in fusion_weights.items():
+            st.write(f"  - {component.replace('_', ' ').title()}: {weight:.1%}")
+    
+    else:
+        st.warning("🚧 Hybrid System Not Available")
+        st.markdown("""
+        The hybrid system components are not currently available. To enable the full hybrid system:
+        
+        1. **Train Autoencoder**: Run autoencoder training on normal traffic data
+        2. **Train LSTM**: Generate temporal sequences and train LSTM model  
+        3. **Initialize Fusion**: Set up the intelligent fusion engine
+        
+        The current system still provides excellent 99.09% accuracy using the ensemble approach.
+        """)
+        
+        # Show what would be available
+        st.markdown("### 🔮 Planned Capabilities")
+        
+        planned_col1, planned_col2 = st.columns(2)
+        
+        with planned_col1:
+            st.markdown("""
+            **🔬 Anomaly Detection**
+            - Detect zero-day attacks
+            - Identify novel attack patterns  
+            - Unsupervised learning approach
+            - 95th percentile threshold
+            """)
+        
+        with planned_col2:
+            st.markdown("""
+            **⏱️ Temporal Analysis** 
+            - Sequential attack recognition
+            - Pattern consistency analysis
+            - Sliding window processing
+            - Attention-based LSTM
+            """)
 
 st.markdown("---")
 st.markdown("""
