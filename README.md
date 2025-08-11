@@ -22,21 +22,21 @@ This project implements a **breakthrough Neural Network-based Intrusion Detectio
 
 ### 🚀 Advanced Model Performance Metrics
 
-| Model Type | Accuracy | Precision | Recall | F1-Score | Status |
-|------------|----------|-----------|---------|----------|---------|
-| **🎭 Ensemble Model** | **99.09%** | **99.04%** | **99.00%** | **99.00%** | **🏆 BEST** |
-| **🧠 Advanced NN** | **98.96%** | **98.94%** | **98.90%** | **98.90%** | **✅ Excellent** |
-| Original Baseline | 71.80% | 72.15% | 71.50% | 71.25% | ❌ Insufficient |
+| Model Type            | Accuracy   | Precision  | Recall     | F1-Score   | Status           |
+| --------------------- | ---------- | ---------- | ---------- | ---------- | ---------------- |
+| **🎭 Ensemble Model** | **99.09%** | **99.04%** | **99.00%** | **99.00%** | **🏆 BEST**      |
+| **🧠 Advanced NN**    | **98.96%** | **98.94%** | **98.90%** | **98.90%** | **✅ Excellent** |
+| Original Baseline     | 71.80%     | 72.15%     | 71.50%     | 71.25%     | ❌ Insufficient  |
 
 ### 🛡️ Attack Detection Capability
 
-| Attack Type | Detection Rate | Precision | Recall | Description |
-|-------------|----------------|-----------|---------|-------------|
-| **✅ Normal** | **99.2%** | 99.5% | 99.0% | Legitimate traffic |
-| **🚫 DoS** | **98.9%** | 98.8% | 99.1% | Denial of Service attacks |
-| **🔍 Probe** | **98.5%** | 98.2% | 98.8% | Network reconnaissance |
-| **🔓 R2L** | **97.8%** | 97.5% | 98.1% | Remote-to-local attacks |
-| **⬆️ U2R** | **96.5%** | 96.2% | 96.8% | User-to-root privilege escalation |
+| Attack Type   | Detection Rate | Precision | Recall | Description                       |
+| ------------- | -------------- | --------- | ------ | --------------------------------- |
+| **✅ Normal** | **99.2%**      | 99.5%     | 99.0%  | Legitimate traffic                |
+| **🚫 DoS**    | **98.9%**      | 98.8%     | 99.1%  | Denial of Service attacks         |
+| **🔍 Probe**  | **98.5%**      | 98.2%     | 98.8%  | Network reconnaissance            |
+| **🔓 R2L**    | **97.8%**      | 97.5%     | 98.1%  | Remote-to-local attacks           |
+| **⬆️ U2R**    | **96.5%**      | 96.2%     | 96.8%  | User-to-root privilege escalation |
 
 ## 🧠 Advanced Neural Network Architecture
 
@@ -46,10 +46,10 @@ The breakthrough performance is achieved through an ensemble of 3 specialized ne
 
 ```
 🎯 Model 1 - Deep Architecture:
-Input (41) → Dense(256) → BatchNorm → Dropout(0.3) → 
+Input (41) → Dense(256) → BatchNorm → Dropout(0.3) →
 Dense(128) → BatchNorm → Dropout(0.2) → Dense(64) → Output(5)
 
-🎯 Model 2 - Wide Architecture:  
+🎯 Model 2 - Wide Architecture:
 Input (41) → Dense(512) → BatchNorm → Dropout(0.4) →
 Dense(256) → BatchNorm → Dropout(0.3) → Dense(128) → Output(5)
 
@@ -78,7 +78,7 @@ Dense(64) → BatchNorm → Dropout(0.1) → Dense(32) → Output(5)
 ├── 🏃 run_advanced_ids.bat            # ⚡ Quick launcher script
 ├── 📂 models_advanced/                # 🏆 Trained models directory
 │   ├── ensemble_model_1.keras         #   🎯 Ensemble model 1
-│   ├── ensemble_model_2.keras         #   🎯 Ensemble model 2  
+│   ├── ensemble_model_2.keras         #   🎯 Ensemble model 2
 │   ├── ensemble_model_3.keras         #   🎯 Ensemble model 3
 │   ├── advanced_nn_model.keras        #   🧠 Advanced single model
 │   ├── scaler_advanced.pkl            #   📊 Feature scaler
@@ -90,27 +90,29 @@ Dense(64) → BatchNorm → Dropout(0.1) → Dense(32) → Output(5)
 ├── 🔒 .gitignore                      # 🗂️ Git ignore rules
 └── 📁 .vscode/                        # 🛠️ VS Code configuration
 ```
-├── 🌐 ids_streamlit_app.py            # Full Streamlit application
-├── 🎭 ids_demo_app.py                 # Demo version (no models required)
-├── 🚀 run_ids_app.py                  # Setup script
-├── 📦 requirements.txt                # Python dependencies
-├── 🧠 neural_network_ids/             # Project modules
-│   ├── src/
-│   │   ├── models/
-│   │   │   └── autoencoder_lstm.py    # Advanced model architecture
-│   │   └── preprocessing/
-│   │       └── data_processor.py      # Data preprocessing pipeline
-│   └── config/
-│       └── config.yaml                # Configuration file
-├── 🛠️ .vscode/                        # VS Code configuration
-│   ├── settings.json
-│   ├── launch.json
-│   └── tasks.json
+
+├── 🌐 ids_streamlit_app.py # Full Streamlit application
+├── 🎭 ids_demo_app.py # Demo version (no models required)
+├── 🚀 run_ids_app.py # Setup script
+├── 📦 requirements.txt # Python dependencies
+├── 🧠 neural_network_ids/ # Project modules
+│ ├── src/
+│ │ ├── models/
+│ │ │ └── autoencoder_lstm.py # Advanced model architecture
+│ │ └── preprocessing/
+│ │ └── data_processor.py # Data preprocessing pipeline
+│ └── config/
+│ └── config.yaml # Configuration file
+├── 🛠️ .vscode/ # VS Code configuration
+│ ├── settings.json
+│ ├── launch.json
+│ └── tasks.json
 └── 📊 models/ (generated after training)
-    ├── nsl_kdd_ids_model.keras         # Trained model
-    ├── scaler.pkl                      # Feature scaler
-    └── feature_columns.pkl             # Feature metadata
-```
+├── nsl_kdd_ids_model.keras # Trained model
+├── scaler.pkl # Feature scaler
+└── feature_columns.pkl # Feature metadata
+
+````
 
 ## 🚀 Quick Start Guide
 
@@ -127,23 +129,26 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-```
+````
 
 ### 2. 🎯 Run the Advanced IDS Application
 
 #### Option A: Quick Launch (Windows)
+
 ```cmd
 # Double-click the batch file or run:
 run_advanced_ids.bat
 ```
 
 #### Option B: Command Line
+
 ```bash
 # Launch the advanced Streamlit app
 streamlit run ids_advanced_app.py --server.port 8502
 ```
 
 #### Option C: Training from Scratch
+
 ```bash
 # Open the Jupyter notebook
 jupyter notebook "NNDL_PROJECT (3).ipynb"
@@ -155,17 +160,20 @@ jupyter notebook "NNDL_PROJECT (3).ipynb"
 ### 3. 🌐 Access the Application
 
 Once running, open your browser and navigate to:
+
 - **Local URL**: http://localhost:8502
 - **Network URL**: http://your-ip:8502
 
 ## 🎮 Application Features
 
 ### 🔧 Manual Input Mode
+
 - Configure network traffic parameters
 - Real-time prediction with confidence scores
 - Interactive visualization of results
 
 ### 🎭 Predefined Scenarios
+
 - Test with realistic attack scenarios:
   - Normal Web Traffic
   - DoS Attack (Neptune)
@@ -174,6 +182,7 @@ Once running, open your browser and navigate to:
   - Buffer Overflow (U2R)
 
 ### 🧪 Advanced Testing
+
 - Batch testing with multiple samples
 - Performance analytics dashboard
 - Model comparison metrics
@@ -215,12 +224,12 @@ Once running, open your browser and navigate to:
 
 ### 📈 Performance Evolution
 
-| Version | Technique | Accuracy | Improvement |
-|---------|-----------|----------|-------------|
-| v1.0 | Basic NN | 71.80% | Baseline |
-| v2.0 | Deep NN + Regularization | 89.70% | +17.90% |
-| v3.0 | Advanced Architecture | 98.96% | +27.16% |
-| v4.0 | **Ensemble Model** | **99.09%** | **+27.29%** |
+| Version | Technique                | Accuracy   | Improvement |
+| ------- | ------------------------ | ---------- | ----------- |
+| v1.0    | Basic NN                 | 71.80%     | Baseline    |
+| v2.0    | Deep NN + Regularization | 89.70%     | +17.90%     |
+| v3.0    | Advanced Architecture    | 98.96%     | +27.16%     |
+| v4.0    | **Ensemble Model**       | **99.09%** | **+27.29%** |
 
 ### 🧪 Experimental Results
 
@@ -232,18 +241,21 @@ Once running, open your browser and navigate to:
 ## 🎯 Use Cases
 
 ### 🏢 Enterprise Applications
+
 - **Network Security Monitoring**
 - **Real-time Threat Detection**
 - **Security Information and Event Management (SIEM)**
 - **Compliance and Audit Support**
 
 ### 🎓 Academic Applications
+
 - **Cybersecurity Research**
 - **Machine Learning Education**
 - **Network Traffic Analysis Studies**
 - **Intrusion Detection Benchmarking**
 
 ### 🔧 Integration Scenarios
+
 - **API Integration** for existing security tools
 - **Batch Processing** for historical data analysis
 - **Real-time Streaming** with Apache Kafka/Storm
