@@ -3,7 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://tensorflow.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.x-red.svg)](https://streamlit.io/)
-[![Accuracy](https://img.shields.io/badge/Accuracy-99.09%25-brightgreen.svg)](https://github.com/)
+[![Accuracy](https://img.shields.io/badge/Accuracy-99.09%25-brightgreen.svg)](https://github.com/syashu16/advanced-neural-network-ids)
 
 ## 🌟 Project Overview
 
@@ -118,7 +118,7 @@ Dense(64) → BatchNorm → Dropout(0.1) → Dense(32) → Output(5)
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/advanced-neural-network-ids.git
+git clone https://github.com/syashu16/advanced-neural-network-ids.git
 cd advanced-neural-network-ids
 
 # Create virtual environment (recommended)
@@ -279,10 +279,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **Author**: Your Name
-- **Email**: your.email@example.com
-- **GitHub**: [@yourusername](https://github.com/yourusername)
-- **LinkedIn**: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- **Author**: Syashu
+- **GitHub**: [@syashu16](https://github.com/syashu16)
+- **Repository**: [Advanced Neural Network IDS](https://github.com/syashu16/advanced-neural-network-ids)
 
 ## 🌟 Star History
 
