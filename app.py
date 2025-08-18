@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import joblib
+import joblib  # Make sure joblib is imported
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
@@ -14,7 +14,8 @@ warnings.filterwarnings('ignore')
 
 import os
 from tensorflow import keras
-import pickle
+# Remove the import for pickle as it's no longer needed for loading these files
+# import pickle
 
 # Path to models folder
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -26,15 +27,12 @@ ensemble1 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_1.ke
 ensemble2 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_2.keras"))
 ensemble3 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_3.keras"))
 
-# Load preprocessing files
-with open(os.path.join(MODEL_DIR, "scaler_advanced.pkl"), "rb") as f:
-    scaler = pickle.load(f)
+# Load preprocessing files using joblib
+scaler = joblib.load(os.path.join(MODEL_DIR, "scaler_advanced.pkl"))
+label_encoders = joblib.load(os.path.join(MODEL_DIR, "label_encoders.pkl"))
+feature_columns = joblib.load(os.path.join(MODEL_DIR, "feature_columns.pkl"))
 
-with open(os.path.join(MODEL_DIR, "label_encoders.pkl"), "rb") as f:
-    label_encoders = pickle.load(f)
-
-with open(os.path.join(MODEL_DIR, "feature_columns.pkl"), "rb") as f:
-    feature_columns = pickle.load(f)
+# ... (the rest of your app.py code remains the same)
 
 # Page configuration
 st.set_page_config(
