@@ -12,6 +12,30 @@ import os
 from sklearn.preprocessing import LabelEncoder
 warnings.filterwarnings('ignore')
 
+import os
+from tensorflow import keras
+import pickle
+
+# Path to models folder
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(BASE_DIR, "models_advanced")
+
+# Load models
+model = keras.models.load_model(os.path.join(MODEL_DIR, "advanced_nn_model.keras"))
+ensemble1 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_1.keras"))
+ensemble2 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_2.keras"))
+ensemble3 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_3.keras"))
+
+# Load preprocessing files
+with open(os.path.join(MODEL_DIR, "scaler_advanced.pkl"), "rb") as f:
+    scaler = pickle.load(f)
+
+with open(os.path.join(MODEL_DIR, "label_encoders.pkl"), "rb") as f:
+    label_encoders = pickle.load(f)
+
+with open(os.path.join(MODEL_DIR, "feature_columns.pkl"), "rb") as f:
+    feature_columns = pickle.load(f)
+
 # Page configuration
 st.set_page_config(
     page_title="Advanced Neural Network IDS - 99.09% Accuracy",
