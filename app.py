@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import tensorflow as tf
-import joblib  # Make sure joblib is imported
+import joblib
 import plotly.graph_objects as go
 import plotly.express as px
 from datetime import datetime
@@ -11,28 +11,6 @@ import json
 import os
 from sklearn.preprocessing import LabelEncoder
 warnings.filterwarnings('ignore')
-
-import os
-from tensorflow import keras
-# Remove the import for pickle as it's no longer needed for loading these files
-# import pickle
-
-# Path to models folder
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "models_advanced")
-
-# Load models
-model = keras.models.load_model(os.path.join(MODEL_DIR, "advanced_nn_model.keras"))
-ensemble1 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_1.keras"))
-ensemble2 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_2.keras"))
-ensemble3 = keras.models.load_model(os.path.join(MODEL_DIR, "ensemble_model_3.keras"))
-
-# Load preprocessing files using joblib
-scaler = joblib.load(os.path.join(MODEL_DIR, "scaler_advanced.pkl"))
-label_encoders = joblib.load(os.path.join(MODEL_DIR, "label_encoders.pkl"))
-feature_columns = joblib.load(os.path.join(MODEL_DIR, "feature_columns.pkl"))
-
-# ... (the rest of your app.py code remains the same)
 
 # Page configuration
 st.set_page_config(
